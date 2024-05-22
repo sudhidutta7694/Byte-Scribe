@@ -20,7 +20,7 @@ const Navbar = () => {
   const [password, setPassword] = useState("");
   const [updated, setUpdated] = useState(false);
   const profileMenuRef = useRef();
-  const url = "http://localhost:8080";
+  const url = "https://byte-scribe-backend.onrender.com";
 
   // Fetch user info on component mount
 

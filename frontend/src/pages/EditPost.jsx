@@ -37,6 +37,8 @@ const EditPost = () => {
       username: user.username,
       userId: user._id,
       categories: cats,
+      status: "pending",
+      approved: false,
     };
 
     if (file) {
