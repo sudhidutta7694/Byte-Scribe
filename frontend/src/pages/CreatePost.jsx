@@ -7,7 +7,7 @@ import { URL } from "../url";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { FaUserCircle } from "react-icons/fa";
-import { UserContext } from '../context/UserContext'
+// import { UserContext } from '../context/UserContext'
 // import ReactMarkdown from "react-markdown";
 // import ReactQuill from "react-quill";
 // import "react-quill/dist/quill.snow.css"; // Import Quill styles
@@ -19,7 +19,8 @@ const CreatePost = () => {
   const [cat, setCat] = useState("");
   const [cats, setCats] = useState([]);
   const [preview, setPreview] = useState(false);
-  const {user}=useContext(UserContext)
+  // const {user}=useContext(UserContext)
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const navigate = useNavigate();
 

@@ -9,7 +9,7 @@ const verifyAdmin = require('../verifyAdmin')
 const { verifyTokenAndAdmin } = require('../verifyTokenAndAdmin');
 
 //CREATE
-router.post("/create", verifyToken, async (req, res) => {
+router.post("/create", async (req, res) => {
     try {
         const newPost = new Post(req.body)
         // console.log(req.body)
