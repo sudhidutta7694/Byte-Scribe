@@ -1,22 +1,22 @@
 /* eslint-disable react/prop-types */
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useState, useEffect } from 'react';
 
-export const UserContext = createContext({});
+export const UserContext = createContext();
 
-export function UserContextProvider({ children }) {
-  const [user, setUser] = useState(null);
+export const UserContextProvider = ({ children }) => {
+  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || null);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-      console.log('User:', user);
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
     }
-  }, []);
+  }, [user]);
 
   return (
     <UserContext.Provider value={{ user, setUser }}>
       {children}
     </UserContext.Provider>
   );
-}
+};

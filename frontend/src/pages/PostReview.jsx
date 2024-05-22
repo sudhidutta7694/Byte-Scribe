@@ -9,9 +9,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const PostReview = () => {
+  // const URL = 'http://localhost:8080'
   const postId = useParams().id;
   const [post, setPost] = useState({});
-  const { user } = useContext(UserContext);
+  // const { user } = useContext(UserContext);
+  const user = JSON.parse(localStorage.getItem("user"));
   const [suggestion, setSuggestion] = useState("");
   const [loader, setLoader] = useState(true);
 

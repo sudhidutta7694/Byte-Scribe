@@ -22,15 +22,16 @@ const Dashboard = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
   const url = "https://byte-scribe-backend.onrender.com";
+  const userData = JSON.parse(localStorage.getItem("user"));
 
   // Fetch user info on component mount
   useEffect(() => {
-    if (!user) {
+    if (!userData) {
       navigate("/login");
-      return;
-    }else if (user?.isAdmin === false) {
+      // return;
+    }else if (userData?.isAdmin === false) {
       navigate("/");
-      return;
+      // return;
     }
 
     const fetchData = async () => {
@@ -157,7 +158,7 @@ const Dashboard = () => {
                 >
                   {user.username}
                   <div className="flex space-x-2">
-                    {!user.isAdmin && (
+                    {/* {!user.isAdmin && (
                       <FaUserShield
                         className="text-green-500 cursor-pointer"
                         onClick={(e) => {
@@ -165,8 +166,8 @@ const Dashboard = () => {
                           handleMakeAdmin(user._id);
                         }}
                       />
-                    )}
-                    {!user.isAdmin && (
+                    )} */}
+                    {/* {!user.isAdmin && (
                       <FaTrash
                         className="text-red-500 cursor-pointer"
                         onClick={(e) => {
@@ -174,7 +175,7 @@ const Dashboard = () => {
                           handleDeleteUser(user._id);
                         }}
                       />
-                    )}
+                    )} */}
                   </div>
                 </li>
               ))}

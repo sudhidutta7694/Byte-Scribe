@@ -15,11 +15,12 @@ const MyBlogs = () => {
   const [loader, setLoader] = useState(false);
   const { user } = useContext(UserContext);
   const [activeTab, setActiveTab] = useState("all");
+  const userData = JSON.parse(localStorage.getItem("user"));
 
   const fetchPosts = async () => {
     setLoader(true);
     try {
-      const res = await axios.get(URL + "/api/posts/user/" + user._id);
+      const res = await axios.get(URL + "/api/posts/user/" + user._id || userData._id);
       setPosts(res.data);
       if (res.data.length === 0) {
         setNoResults(true);

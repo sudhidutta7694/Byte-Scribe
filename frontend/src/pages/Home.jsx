@@ -1,6 +1,6 @@
 import axios from "axios";
-import React, { useContext, useEffect, useState, useRef, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Loader from '../components/Loader';
 import { UserContext } from "../context/UserContext";
 import Navbar from "../components/Navbar";
@@ -9,115 +9,80 @@ import HomePosts from "../components/HomePosts";
 import { URL } from "../url";
 
 const Home = () => {
-  const { search } = useLocation();
   const [posts, setPosts] = useState([]);
+  const [loader, setLoader] = useState(false);
   const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
-  const [noResults, setNoResults] = useState(false);
-  const [loader, setLoader] = useState(false);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(true);
-  const observer = useRef();
   const { user } = useContext(UserContext);
 
-  const POSTS_PER_PAGE = 3; // Number of posts to fetch per page
-
-  // Fetch categories
+  // Fetch posts
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchPosts = async () => {
+      setLoader(true);
       try {
-        const res = await axios.get(`${URL}/api/posts/`);
-        setCategories(res.data.categories);
+        const res = await axios.get(`${URL}/api/posts`);
+        setPosts(res.data);
+        // Extract categories from posts
+        const allCategories = new Set();
+        res.data.forEach(post => { post.approved &&
+          post.categories.forEach(category => allCategories.add(category));
+        });
+        setCategories(Array.from(allCategories));
+        setLoader(false);
       } catch (err) {
         console.log(err);
+        setLoader(false);
       }
     };
-    fetchCategories();
+    fetchPosts();
   }, []);
 
-  const fetchPosts = useCallback(async () => {
-    setLoader(true);
-    try {
-      const res = await axios.get(`${URL}/api/posts?page=${page}&limit=${POSTS_PER_PAGE}&${search}`);
-      const newPosts = res.data;
-      setPosts(prevPosts => [...prevPosts, ...newPosts]);
-      setNoResults(newPosts.length === 0 && page === 1);
-      setHasMore(newPosts.length === POSTS_PER_PAGE); // Check if the fetched posts are less than POSTS_PER_PAGE
-      setLoader(false);
-    } catch (err) {
-      console.log(err);
-      setLoader(false);
-    }
-  }, [page, search]);
-
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  const lastPostElementRef = useCallback(node => {
-    if (loader) return;
-    if (observer.current) observer.current.disconnect();
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        setPage(prevPage => prevPage + 1);
-      }
-    });
-    if (node) observer.current.observe(node);
-  }, [loader, hasMore]);
-
   // Handle category selection
-  const handleCategorySelect = category => {
-    if (selectedCategories.includes(category)) {
-      setSelectedCategories(prevSelected => prevSelected.filter(c => c !== category));
-    } else {
-      setSelectedCategories(prevSelected => [...prevSelected, category]);
-    }
-    // Reset page to 1 when selecting a new category
-    setPage(1);
+  const handleCategorySelect = (category) => {
+    setSelectedCategories(prevSelected =>
+      prevSelected.includes(category)
+        ? prevSelected.filter(c => c !== category)
+        : [...prevSelected, category]
+    );
   };
 
   // Filter posts based on selected categories
-  const filteredPosts = selectedCategories.length > 0 ? posts.filter(post => selectedCategories.includes(post.category)) : posts;
+  const filteredPosts = selectedCategories.length > 0
+    ? posts.filter(post => selectedCategories.every(cat => post.categories.includes(cat)))
+    : posts;
 
   return (
     <>
       <Navbar />
       <div className="flex flex-1 flex-col bg-slate-800 px-8 md:px-[200px] min-h-screen py-8">
-        <div className="h-16"></div>
-        <div className="flex justify-center space-x-4 mb-4">
-          {filteredPosts.categories?.map(category => (
+        <div className="h-36"></div>
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-[90vw] max-w-4xl flex items-center mt-4 justify-center space-x-4 mb-4">
+          {categories.map(category => (
             <button
-              key={category._id}
+              key={category}
               onClick={() => handleCategorySelect(category)}
-              className={`text-white font-semibold px-4 py-2 rounded-md focus:outline-none ${
-                selectedCategories.includes(category) ? 'bg-blue-500' : 'bg-gray-700'
+              className={`backdrop-filter backdrop-blur-lg bg-opacity-50 bg-black p-4  text-white font-semibold px-4 py-2 rounded-md focus:outline-none ${
+                selectedCategories.includes(category) ? 'bg-green-500' : 'bg-gray-700'
               }`}
             >
-              {category.name}
+              {category}
             </button>
           ))}
         </div>
-        {loader && page === 1 ? (
+        {loader ? (
           <div className="h-[40vh] flex justify-center items-center">
             <Loader />
           </div>
-        ) : !noResults ? (
-          filteredPosts.filter((post) => post.status === "approved").map((post, index) => (
+        ) : filteredPosts.length > 0 ? (
+          filteredPosts.filter((post) => post.status === "approved").map((post) => (
             <Link to={user ? `/posts/post/${post._id}` : "/login"} key={post._id}>
-              <div ref={filteredPosts.length === index + 1 ? lastPostElementRef : null}>
-                <HomePosts post={post} />
-              </div>
+              <HomePosts post={post} />
             </Link>
           ))
         ) : (
           <h3 className="text-center font-bold mt-16 text-white">No posts available</h3>
         )}
       </div>
-      {loader && page > 1 && (
-        <div className="flex justify-center items-center py-4">
-          <Loader />
-        </div>
-      )}
       <Footer />
     </>
   );

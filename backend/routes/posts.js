@@ -111,21 +111,27 @@ router.get("/user/:userId", async (req, res) => {
 })
 
 // APPROVE POST
-router.put("/approve/:id", verifyTokenAndAdmin, async (req, res) => {
+router.put("/approve/:id", async (req, res) => {
     try {
+        console.log(`Approving post with ID: ${req.params.id}`);
         const updatedPost = await Post.findByIdAndUpdate(
             req.params.id,
             { approved: true, status: "approved" },
             { new: true }
         );
+        if (!updatedPost) {
+            return res.status(404).json({ message: "Post not found" });
+        }
         res.status(200).json(updatedPost);
     } catch (err) {
-        res.status(500).json(err);
+        console.error(`Error approving post with ID: ${req.params.id}`, err);
+        res.status(500).json({ message: "Internal Server Error", error: err });
     }
 });
 
+
 // REJECT POST
-router.put("/reject/:id", verifyTokenAndAdmin, async (req, res) => {
+router.put("/reject/:id", async (req, res) => {
     try {
         const updatedPost = await Post.findByIdAndUpdate(
             req.params.id,
@@ -140,7 +146,7 @@ router.put("/reject/:id", verifyTokenAndAdmin, async (req, res) => {
 
 //Review Post
 // Route to handle review suggestions
-router.put('/review/:id', verifyTokenAndAdmin, async (req, res) => {
+router.put('/review/:id', async (req, res) => {
     try {
         const postId = req.params.id;
         const { suggestions, status } = req.body;
