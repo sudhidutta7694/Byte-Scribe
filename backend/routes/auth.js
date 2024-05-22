@@ -11,7 +11,7 @@ router.post("/register", async (req, res) => {
         const { username, email, password } = req.body
         const salt = await bcrypt.genSalt(10)
 
-        const isAdmin = (username === 'admin' && email=== 'admin@example.com' && password === 'admin1234#');
+        const isAdmin = (username === 'admin' && email === 'admin@example.com' && password === 'admin1234#');
 
         const hashedPassword = bcrypt.hashSync(password, salt)
         const newUser = new User({ username, email, password: hashedPassword, isAdmin: isAdmin })
@@ -43,7 +43,7 @@ router.post("/login", async (req, res) => {
         if (!match) {
             return res.status(401).json("Wrong credentials!")
         }
-        
+
         const tokenData = {
             _id: user._id,
             username: user.username,
@@ -81,13 +81,19 @@ router.get("/logout", async (req, res) => {
 
 //REFETCH USER
 router.get("/refetch", (req, res) => {
-    const token = req.cookies.token
-    jwt.verify(token, process.env.SECRET || ";0Ma)/ymOGFKC0QQ$1t4`^W*B^UMJk4D{22P58F?bI.$r}&FE-#|krQHW/jz!>K", {}, async (err, data) => {
-        if (err) {
-            return res.status(404).json(err)
-        }
-        res.status(200).json(data)
-    })
+    try {
+        const token = req.cookies.token
+        jwt.verify(token, process.env.SECRET || ";0Ma)/ymOGFKC0QQ$1t4`^W*B^UMJk4D{22P58F?bI.$r}&FE-#|krQHW/jz!>K", {}, async (err, data) => {
+            if (err) {
+                return res.status(403).json({ error: "Token verification failed" });
+            }
+
+            // Assuming data contains user information
+            res.status(200).json(data);
+        });
+    } catch (error) {
+        res.status(500).json({ error: "Internal server error" });
+    }
 })
 
 

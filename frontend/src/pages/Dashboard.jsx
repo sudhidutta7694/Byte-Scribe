@@ -24,26 +24,29 @@ const Dashboard = () => {
   const url = "https://byte-scribe-backend.onrender.com";
 
   // Fetch user info on component mount
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate("/login");
-  //     return;
-  //   }
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }else if (user?.isAdmin === false) {
+      navigate("/");
+      return;
+    }
 
-  //   const fetchData = async () => {
-  //     try {
-  //       const usersRes = await axios.get(URL + "/api/users");
-  //       const postsRes = await axios.get(URL + "/api/posts");
-  //       setUsers(usersRes.data);
-  //       setPosts(postsRes.data);
-  //       setFilteredUsers(usersRes.data);
-  //       setFilteredPosts(postsRes.data);
-  //     } catch (err) {
-  //       console.error(err);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [user, navigate]);
+    const fetchData = async () => {
+      try {
+        const usersRes = await axios.get(URL + "/api/users");
+        const postsRes = await axios.get(URL + "/api/posts");
+        setUsers(usersRes.data);
+        setPosts(postsRes.data);
+        setFilteredUsers(usersRes.data);
+        setFilteredPosts(postsRes.data);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    fetchData();
+  }, [user, navigate]);
 
   useEffect(() => {
     const filteredUsers = users.filter((user) =>
@@ -99,6 +102,7 @@ const Dashboard = () => {
       });
       console.log(res);
       setUser(null);
+      localStorage.removeItem("user");
       navigate("/login");
     } catch (err) {
       console.log(err);

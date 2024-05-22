@@ -23,17 +23,17 @@ const Home = () => {
   const POSTS_PER_PAGE = 3; // Number of posts to fetch per page
 
   // Fetch categories
-  // useEffect(() => {
-  //   const fetchCategories = async () => {
-  //     try {
-  //       const res = await axios.get(`${URL}/api/categories`);
-  //       setCategories(res.data);
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   fetchCategories();
-  // }, []);
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await axios.get(`${URL}/api/posts/`);
+        setCategories(res.data.categories);
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const fetchPosts = useCallback(async () => {
     setLoader(true);
@@ -85,7 +85,7 @@ const Home = () => {
       <div className="flex flex-1 flex-col bg-slate-800 px-8 md:px-[200px] min-h-screen py-8">
         <div className="h-16"></div>
         <div className="flex justify-center space-x-4 mb-4">
-          {fetchPosts.categories?.map(category => (
+          {filteredPosts.categories?.map(category => (
             <button
               key={category._id}
               onClick={() => handleCategorySelect(category)}

@@ -2,25 +2,28 @@ import { useNavigate, useParams } from "react-router-dom";
 import { FaUserCircle } from 'react-icons/fa';
 import axios from "axios";
 import { URL, IF } from "../url";
-import { useContext, useEffect, useState, useCallback } from "react";
+import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../context/UserContext";
 import Loader from "../components/Loader";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const PostReview = () => {
   const postId = useParams().id;
   const [post, setPost] = useState({});
   const { user } = useContext(UserContext);
   const [suggestion, setSuggestion] = useState("");
-  const [loader, setLoader] = useState(false);
-  // const navigate = useNavigate();
+  const [loader, setLoader] = useState(true);
 
   useEffect(() => {
     const fetchPost = async () => {
       try {
         const res = await axios.get(URL + `/api/posts/${postId}`);
         setPost(res.data);
+        setLoader(false);
       } catch (err) {
         console.error(err);
+        setLoader(false);
       }
     };
 
@@ -39,36 +42,85 @@ const PostReview = () => {
 
   const handleApprovePost = async () => {
     try {
-      await axios.put(`${URL}/api/posts/approve/${postId}`, { approved: true, status: "approved" }, { withCredentials: true });
-      // fetchPost();
+      const newStatus = post.status === 'approved' ? 'in review' : 'approved';
+      await axios.put(`${URL}/api/posts/approve/${postId}`, { approved: newStatus === 'approved', status: newStatus }, { withCredentials: true });
+      setPost((prevPost) => ({ ...prevPost, status: newStatus }));
+      toast.success(`Post status updated to ${newStatus}!`, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (err) {
       console.log(err);
+      toast.error('Failed to update post status.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
   const handleRejectPost = async () => {
     try {
-      await axios.put(`${URL}/api/posts/reject/${postId}`, { approved: false, status: "rejected" }, { withCredentials: true });
-      // fetchPost();
+      const newStatus = post.status === 'rejected' ? 'in review' : 'rejected';
+      await axios.put(`${URL}/api/posts/reject/${postId}`, { approved: newStatus === 'rejected', status: newStatus }, { withCredentials: true });
+      setPost((prevPost) => ({ ...prevPost, status: newStatus }));
+      toast.success(`Post status updated to ${newStatus}!`, {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (err) {
       console.log(err);
+      toast.error('Failed to update post status.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
 
   const handleReviewPost = async () => {
     try {
       await axios.put(`${URL}/api/posts/review/${postId}`, { suggestions: suggestion, status: "in review" }, { withCredentials: true });
-      console.log("Suggestion added");
-      // setSuggestion(suggestion);
-      // fetchPost();
+      toast.success('Suggestion has been added!', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     } catch (err) {
+      toast.error('Failed to add suggestion.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
       console.log(err);
     }
   };
-
-  // useEffect(() => {
-  //   fetchPost();
-  // }, [fetchPost, postId]);
 
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'long', day: 'numeric' };
@@ -89,16 +141,16 @@ const PostReview = () => {
               {user?.isAdmin && (
                 <div className="flex items-center space-x-2">
                   <button
-                    className="bg-green-600 text-sm text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                    className={`bg-${post.status === 'approved' ? 'gray-600' : 'green-600'} text-sm text-white px-4 py-2 rounded-lg hover:bg-${post.status === 'approved' ? 'gray-700' : 'green-700'}`}
                     onClick={handleApprovePost}
                   >
-                    Approve
+                    {post.status === 'approved' ? 'Approved' : 'Approve'}
                   </button>
                   <button
-                    className="bg-red-600 text-sm text-white px-4 py-2 rounded-lg hover:bg-red-700"
+                    className={`bg-${post.status === 'rejected' ? 'gray-600' : 'red-600'} text-sm text-white px-4 py-2 rounded-lg hover:bg-${post.status === 'rejected' ? 'gray-700' : 'red-700'}`}
                     onClick={handleRejectPost}
                   >
-                    Reject
+                    {post.status === 'rejected' ? 'Rejected' : 'Reject'}
                   </button>
                 </div>
               )}
@@ -131,7 +183,6 @@ const PostReview = () => {
                   <p className="text-lg font-semibold">{post.username}</p>
                   <div className="flex space-x-4 text-sm">
                     <p>Posted on {' '} {formatDate(post.updatedAt)}</p>
-                    {/* <p>{new Date(post.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p> */}
                   </div>
                 </div>
               </div>
@@ -141,11 +192,11 @@ const PostReview = () => {
                   <span key={i} className="rounded-full text-md font-mono" style={{ color: getRandomColor() }}>
                     #{c}
                   </span>
-                  
                 ))}
               </div>
               <p className="text-gray-300 leading-relaxed">{post.desc}</p>
             </div>
+            <ToastContainer />
             <div className="h-6"></div>
           </div>
         </>

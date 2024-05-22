@@ -1,2 +1,2 @@
-export const URL=import.meta.env.VITE_URL
-export const IF=import.meta.env.VITE_IF
+export const URL="https://byte-scribe-backend.onrender.com"
+export const IF="https://byte-scribe-backend.onrender.com/images/"

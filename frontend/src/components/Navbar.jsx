@@ -60,21 +60,21 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleUserUpdate = async () => {
-    setUpdated(false);
-    try {
-      const res = await axios.put(
-        url + "/api/users/" + user._id,
-        { username, email, password },
-        { withCredentials: true }
-      );
-      console.log(res.data);
-      setUpdated(true);
-    } catch (err) {
-      console.log(err);
-      setUpdated(false);
-    }
-  };
+  // const handleUserUpdate = async () => {
+  //   setUpdated(false);
+  //   try {
+  //     const res = await axios.put(
+  //       url + "/api/users/" + user._id,
+  //       { username, email, password },
+  //       { withCredentials: true }
+  //     );
+  //     console.log(res.data);
+  //     setUpdated(true);
+  //   } catch (err) {
+  //     console.log(err);
+  //     setUpdated(false);
+  //   }
+  // };
 
   const handleUserDelete = async () => {
     try {
@@ -96,6 +96,7 @@ const Navbar = () => {
       });
       console.log(res);
       setUser(null);
+      localStorage.removeItem("user");
       navigate("/login");
     } catch (err) {
       console.log(err);
