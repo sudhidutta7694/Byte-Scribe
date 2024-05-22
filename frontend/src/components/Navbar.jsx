@@ -49,18 +49,18 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleUserDelete = async () => {
-    try {
-      await axios.delete(url + "/api/users/" + userData._id, {
-        withCredentials: true,
-      });
-      setUser(null);
-      localStorage.removeItem("user");
-      navigate("/");
-    } catch (err) {
-      console.error("Error deleting user:", err);
-    }
-  };
+  // const handleUserDelete = async () => {
+  //   try {
+  //     await axios.delete(url + "/api/users/" + userData._id, {
+  //       withCredentials: true,
+  //     });
+  //     setUser(null);
+  //     localStorage.removeItem("user");
+  //     navigate("/");
+  //   } catch (err) {
+  //     console.error("Error deleting user:", err);
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {
@@ -109,12 +109,12 @@ const Navbar = () => {
                   <h3 className="text-green-300 font-semibold">{username}</h3>
                 </div>
                 <hr className="border-gray-500" />
-                <button
+                {/* <button
                   onClick={handleUserDelete}
                   className="block px-4 py-2 text-sm text-red-200 hover:bg-gray-700 hover:text-red-300 w-full text-left"
                 >
                   Delete Account
-                </button>
+                </button> */}
                 <button
                   onClick={handleLogout}
                   className="block px-4 py-2 text-sm hover:bg-gray-700 w-full text-left"
