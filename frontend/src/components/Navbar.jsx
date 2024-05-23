@@ -22,7 +22,9 @@ const Navbar = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(url + "/api/users/" + userData._id, { timeout: 5000 });
+        const res = await axios.get(url + "/api/users/" + userData._id, { timeout: 5000 }, {
+          withCredentials: true,
+        });
         setUsername(res.data.username);
       } catch (err) {
         console.error("Error fetching profile:", err);

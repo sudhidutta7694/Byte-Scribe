@@ -11,7 +11,7 @@ router.post("/register", async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = bcrypt.hashSync(password, salt);
 
-        const isAdmin = (username === 'admin' && email === 'admin@example.com' && password === 'admin1234#');
+        const isAdmin = (username === process.env.ADMIN_USERNAME && email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD);
 
         const newUser = new User({ username, email, password: hashedPassword, isAdmin });
         const savedUser = await newUser.save();
@@ -32,7 +32,7 @@ router.post("/login", async (req, res) => {
             return res.status(404).json({ error: "User not found" });
         }
 
-        const isAdminCredentials = (email === 'admin@example.com' && password === 'admin1234#');
+        const isAdminCredentials = (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD);
         const match = await bcrypt.compare(password, user.password);
 
         if (!match) {
