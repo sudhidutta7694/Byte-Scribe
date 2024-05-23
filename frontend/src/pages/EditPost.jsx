@@ -19,7 +19,9 @@ const EditPost = () => {
 
   const fetchPost = async () => {
     try {
-      const res = await axios.get(URL + "/api/posts/" + postId);
+      const res = await axios.get(URL + "/api/posts/" + postId, {
+        withCredentials: true,
+      });
       setTitle(res.data.title);
       setDesc(res.data.desc);
       setFile(res.data.photo);
@@ -48,7 +50,9 @@ const EditPost = () => {
       data.append("file", file);
       post.photo = filename;
       try {
-        await axios.post(URL + "/api/upload", data);
+        await axios.post(URL + "/api/upload", data, {
+          withCredentials: true,
+        });
       } catch (err) {
         console.log(err);
       }

@@ -1,22 +1,35 @@
 /* eslint-disable react/prop-types */
-import { createContext, useState, useEffect } from 'react';
 
-export const UserContext = createContext();
 
-export const UserContextProvider = ({ children }) => {
-  const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user')) || null);
+import axios from "axios";
+import { createContext, useEffect, useState } from "react";
+import { URL } from "../url";
 
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem('user', JSON.stringify(user));
-    } else {
-      localStorage.removeItem('user');
+
+export const UserContext=createContext({})
+
+
+export function UserContextProvider({children}){
+    const [user,setUser]=useState(null)
+
+    useEffect(()=>{
+      getUser()
+
+    },[])
+
+    const getUser=async()=>{
+      try{
+        const res=await axios.get(URL+"/api/auth/refetch",{withCredentials:true})
+        // console.log(res.data)
+        setUser(res.data)
+
+      }
+      catch(err){
+        console.log(err)
+      }
     }
-  }, [user]);
-
-  return (
-    <UserContext.Provider value={{ user, setUser }}>
+    
+    return (<UserContext.Provider value={{user,setUser}}>
       {children}
-    </UserContext.Provider>
-  );
-};
+    </UserContext.Provider>)
+}

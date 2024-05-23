@@ -1,47 +1,42 @@
-const express = require('express')
-const router = express.Router()
-const User = require('../models/User')
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 
-
-//REGISTER
+// REGISTER
 router.post("/register", async (req, res) => {
     try {
-        const { username, email, password } = req.body
-        const salt = await bcrypt.genSalt(10)
+        const { username, email, password } = req.body;
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = bcrypt.hashSync(password, salt);
 
         const isAdmin = (username === 'admin' && email === 'admin@example.com' && password === 'admin1234#');
 
-        const hashedPassword = bcrypt.hashSync(password, salt)
-        const newUser = new User({ username, email, password: hashedPassword, isAdmin: isAdmin })
-        const savedUser = await newUser.save()
-        res.status(200).json(savedUser)
-
+        const newUser = new User({ username, email, password: hashedPassword, isAdmin });
+        const savedUser = await newUser.save();
+        res.status(200).json(savedUser);
+    } catch (err) {
+        console.error("Error registering user:", err);
+        res.status(500).json({ error: "Error registering user" });
     }
-    catch (err) {
-        res.status(500).json(err)
-    }
+});
 
-})
-
-
-//LOGIN
+// LOGIN
 router.post("/login", async (req, res) => {
     try {
-        const user = await User.findOne({ email: req.body.email })
+        const { email, password } = req.body;
+        const user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(404).json("User not found!")
+            return res.status(404).json({ error: "User not found" });
         }
 
-        // Check if the credentials are for an admin user
-        const isAdminCredentials = (req.body.email === 'admin@example.com' && req.body.password === 'admin1234#');
-
-        const match = await bcrypt.compare(req.body.password, user.password)
+        const isAdminCredentials = (email === 'admin@example.com' && password === 'admin1234#');
+        const match = await bcrypt.compare(password, user.password);
 
         if (!match) {
-            return res.status(401).json("Wrong credentials!")
+            return res.status(401).json({ error: "Wrong credentials" });
         }
 
         const tokenData = {
@@ -54,48 +49,43 @@ router.post("/login", async (req, res) => {
             tokenData.isAdmin = true;
         }
 
-        const token = jwt.sign(tokenData, process.env.SECRET || ";0Ma)/ymOGFKC0QQ$1t4`^W*B^UMJk4D{22P58F?bI.$r}&FE-#|krQHW/jz!>K", { expiresIn: "3d" })
-        const { password, ...info } = user._doc
-        res.cookie("token", token).status(200).json(info)
+        const token = jwt.sign(tokenData, process.env.SECRET, { expiresIn: "3d" });
+        const { password: _, ...userInfo } = user._doc;
 
+        res.cookie("token", token, { httpOnly: true, sameSite: "none", secure: true }).status(200).json(userInfo);
+    } catch (err) {
+        console.error("Error logging in:", err);
+        res.status(500).json({ error: "Error logging in" });
     }
-    catch (err) {
-        // res.status(500).json(err)
-        res.json(err)
-    }
-})
+});
 
-
-
-
-//LOGOUT
+// LOGOUT
 router.get("/logout", async (req, res) => {
     try {
-        res.clearCookie("token", { sameSite: "none", secure: true }).status(200).send("User logged out successfully!")
-
+        res.clearCookie("token", { sameSite: "none", secure: true }).status(200).send("User logged out successfully!");
+    } catch (err) {
+        console.error("Error logging out:", err);
+        res.status(500).json({ error: "Error logging out" });
     }
-    catch (err) {
-        res.status(500).json(err)
-    }
-})
+});
 
-//REFETCH USER
+// REFETCH USER
 router.get("/refetch", (req, res) => {
     try {
-        const token = req.cookies.token
-        jwt.verify(token, process.env.SECRET || ";0Ma)/ymOGFKC0QQ$1t4`^W*B^UMJk4D{22P58F?bI.$r}&FE-#|krQHW/jz!>K", {}, async (err, data) => {
+        const token = req.cookies.token;
+
+        jwt.verify(token, process.env.SECRET, {}, (err, data) => {
             if (err) {
+                console.error("Error verifying token:", err);
                 return res.status(403).json({ error: "Token verification failed" });
             }
 
-            // Assuming data contains user information
             res.status(200).json(data);
         });
-    } catch (error) {
+    } catch (err) {
+        console.error("Error refetching user:", err);
         res.status(500).json({ error: "Internal server error" });
     }
-})
+});
 
-
-
-module.exports = router
+module.exports = router;

@@ -22,7 +22,9 @@ const PostDetails = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(URL + "/api/posts/" + id);
+        const res = await axios.get(URL + "/api/posts/" + id , {
+          withCredentials: true,
+        });
         setPost(res.data);
       } catch (err) {
         console.log(err);
@@ -35,7 +37,9 @@ const PostDetails = () => {
     const fetchPostComments = async () => {
       setLoader(true);
       try {
-        const res = await axios.get(URL + "/api/comments/post/" + id);
+        const res = await axios.get(URL + "/api/comments/post/" + id, {
+          withCredentials: true,
+        });
         setComments(res.data);
         setLoader(false);
       } catch (err) {
@@ -60,6 +64,26 @@ const PostDetails = () => {
       console.log(err);
     }
   };
+
+  const handleEditComment = async (id, comment) => {
+    try {
+      const res = await axios.put(URL + "/api/comments/" + id, { comment },
+        { withCredentials: true });
+      console.log(res.data);
+      window.location.reload(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  const handleDeleteComment = async (id) => {
+    try {
+      await axios.delete(URL + "/api/comments/" + id, { withCredentials: true });
+      window.location.reload(true);
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   const handleDeletePost = async () => {
     try {
@@ -143,12 +167,12 @@ const PostDetails = () => {
                       <p>{formatDate(c.createdAt)}</p>
                     </div>
                   </div>
-                  {user?._id === c.userId && (
+                  {/* {user?._id === c.userId && (
                     <div className="ml-auto flex gap-2">
-                      <MdDelete className="text-red-500 cursor-pointer" />
-                      <MdEdit className="text-green-500 cursor-pointer ml-2" />
+                      <MdDelete onClick={handleDeleteComment} className="text-red-500 cursor-pointer" />
+                      <MdEdit onClick={handleEditComment} className="text-green-500 cursor-pointer ml-2" />
                     </div>
-                  )}
+                  )} */}
                 </div>
                 <p className="text-gray-300 leading-relaxed">{c.comment}</p>
               </div>

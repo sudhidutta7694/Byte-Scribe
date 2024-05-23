@@ -20,11 +20,13 @@ const Home = () => {
     const fetchPosts = async () => {
       setLoader(true);
       try {
-        const res = await axios.get(`${URL}/api/posts`);
-        setPosts(res.data);
+        const res = await axios.get(`${URL}/api/posts` ,{
+          withCredentials: true,
+        });
+        setPosts(res.data.posts);
         // Extract categories from posts
         const allCategories = new Set();
-        res.data.forEach(post => { post.approved &&
+        res?.data?.posts.forEach(post => { post.approved &&
           post.categories.forEach(category => allCategories.add(category));
         });
         setCategories(Array.from(allCategories));

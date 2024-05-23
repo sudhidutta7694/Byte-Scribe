@@ -1,26 +1,31 @@
 import { Link, useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import axios from 'axios';
 import { URL } from '../url';
 import { UserContext } from "../context/UserContext";
 
 const Login = () => {
   const [email, setEmail] = useState("");
-  const {user} = useContext(UserContext)
+  const { user, setUser } = useContext(UserContext);  // Ensure setUser is also destructured
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (user?.isAdmin) {
+      navigate("/dashboard");
+    } else if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);  // Only run this effect when 'user' changes
+
   const handleLogin = async () => {
     try {
       const res = await axios.post(URL + "/api/auth/login", { email, password }, { withCredentials: true });
-      // console.log(res.data);
-      if (res?.data) localStorage.setItem("user", JSON.stringify(res.data));
-      if (res?.data?.isAdmin)  {
-        navigate("/dashboard");
-      }else if (res?.data){
-        navigate("/");
+      if (res?.data) {
+        setUser(res.data);  // Update user context
+        localStorage.setItem("user", JSON.stringify(res.data));
       }
     } catch (err) {
       setError(true);
@@ -28,9 +33,7 @@ const Login = () => {
     }
   };
 
-  if (user?.isAdmin) navigate("/dashboard");
-  if (user) navigate("/");
-
+  // Avoid conditional navigation outside of useEffect
   return (
     <>
       <div className="flex flex-col items-center justify-center h-screen bg-slate-900">

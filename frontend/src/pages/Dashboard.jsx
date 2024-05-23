@@ -5,8 +5,6 @@ import { URL, IF } from "../url";
 import { UserContext } from "../context/UserContext";
 import {
   FaSearch,
-  FaTrash,
-  FaUserShield,
   FaUserAlt,
   FaBlog,
 } from "react-icons/fa";
@@ -21,7 +19,7 @@ const Dashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedUser, setSelectedUser] = useState(null);
   const [selectedPost, setSelectedPost] = useState(null);
-  const url = "https://byte-scribe-backend.onrender.com";
+  // const url = "https://byte-scribe-backend.onrender.com";
   const userData = JSON.parse(localStorage.getItem("user"));
 
   // Fetch user info on component mount
@@ -29,21 +27,30 @@ const Dashboard = () => {
     if (!userData) {
       navigate("/login");
       // return;
-    }else if (userData?.isAdmin === false) {
+    } else if (userData?.isAdmin === false) {
       navigate("/");
       // return;
     }
 
     const fetchData = async () => {
       try {
-        const usersRes = await axios.get(URL + "/api/users");
-        const postsRes = await axios.get(URL + "/api/posts");
+        const usersRes = await axios.get(URL + "/api/users", {
+          withCredentials: true,
+        });
+        const postsRes = await axios.get(URL + "/api/posts", {
+          withCredentials: true,
+        });
+        // console.log(usersRes.data)
+        // console.log(postsRes.data.posts);
         setUsers(usersRes.data);
-        setPosts(postsRes.data);
+        setPosts(postsRes.data.posts);
         setFilteredUsers(usersRes.data);
-        setFilteredPosts(postsRes.data);
+        setFilteredPosts(postsRes.data.posts);
       } catch (err) {
         console.error(err);
+        if (err.response.status === 403) {
+          alert("You are not authorized to view this page");
+        }
       }
     };
     fetchData();
@@ -74,31 +81,31 @@ const Dashboard = () => {
     navigate(`/review/post/${postId}`);
   };
 
-  const handleMakeAdmin = async (userId) => {
-    try {
-      await axios.put(URL + `/api/users/${userId}/make-admin`);
-      setUsers(
-        users.map((user) =>
-          user._id === userId ? { ...user, isAdmin: true } : user
-        )
-      );
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // const handleMakeAdmin = async (userId) => {
+  //   try {
+  //     await axios.put(URL + `/api/users/${userId}/make-admin`);
+  //     setUsers(
+  //       users.map((user) =>
+  //         user._id === userId ? { ...user, isAdmin: true } : user
+  //       )
+  //     );
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
-  const handleDeleteUser = async (userId) => {
-    try {
-      await axios.delete(URL + `/api/users/${userId}`);
-      setUsers(users.filter((user) => user._id !== userId));
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  // const handleDeleteUser = async (userId) => {
+  //   try {
+  //     await axios.delete(URL + `/api/users/${userId}`);
+  //     setUsers(users.filter((user) => user._id !== userId));
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
 
   const handleLogout = async () => {
     try {
-      const res = await axios.get(url + "/api/auth/logout", {
+      const res = await axios.get(URL + "/api/auth/logout", {
         withCredentials: true,
       });
       console.log(res);
@@ -114,7 +121,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-900 text-gray-200">
       <div className="container mx-auto p-6">
         <div className="flex justify-between items-center mb-6">
-        <h1 className="text-4xl font-semibold text-green-400">
+          <h1 className="text-4xl font-semibold text-green-400">
             Admin Dashboard
           </h1>
           <button
@@ -132,7 +139,8 @@ const Dashboard = () => {
           <div className="flex items-center">
             <FaBlog className="text-2xl mr-2" />
             <h2 className="text-2xl font-semibold">
-              Blogs Published: {posts.filter((post) => post.status === 'approved').length}
+              Blogs Published:{" "}
+              {posts?.filter((post) => post.status === "approved").length}
             </h2>
           </div>
         </div>
@@ -150,7 +158,7 @@ const Dashboard = () => {
           <div>
             <h2 className="text-2xl font-semibold mb-4">Registered Users</h2>
             <ul className="bg-gray-800 rounded-lg p-4 overflow-y-auto h-64">
-              {filteredUsers.map((user) => (
+              {filteredUsers?.map((user) => (
                 <li
                   key={user._id}
                   className="flex justify-between items-center border-b border-gray-700 py-2 cursor-pointer hover:bg-gray-700"
@@ -182,7 +190,9 @@ const Dashboard = () => {
             </ul>
           </div>
           <div>
-            <h2 className="text-2xl font-semibold mb-4">Blog Posts in Review</h2>
+            <h2 className="text-2xl font-semibold mb-4">
+              Blog Posts in Review
+            </h2>
             <ul className="bg-gray-800 rounded-lg p-4 overflow-y-auto h-64">
               {filteredPosts &&
                 filteredPosts
@@ -214,7 +224,8 @@ const Dashboard = () => {
                       </button>
                     </li>
                   ))}
-              {!filteredPosts.filter((post) => post.status === "in review").length && (
+              {!filteredPosts.filter((post) => post.status === "in review")
+                .length && (
                 <p className="text-center text-gray-400">No posts in review</p>
               )}
             </ul>
@@ -286,7 +297,9 @@ const Dashboard = () => {
           <div className="mt-6">
             <h2 className="text-2xl font-semibold mb-4">Blog Details</h2>
             <div className="bg-gray-800 rounded-lg p-4">
-              <h3 className="text-xl font-semibold mb-2">{selectedPost.title}</h3>
+              <h3 className="text-xl font-semibold mb-2">
+                {selectedPost.title}
+              </h3>
               <p className="mb-4">{selectedPost.content}</p>
               {selectedPost.photo && (
                 <img
@@ -298,7 +311,9 @@ const Dashboard = () => {
               <p className="mt-4">
                 <strong>Categories:</strong>{" "}
                 {selectedPost.categories.map((c, i) => (
-                  <span key={i} className="mr-2">#{c}</span>
+                  <span key={i} className="mr-2">
+                    #{c}
+                  </span>
                 ))}
               </p>
               <p className="mt-4">

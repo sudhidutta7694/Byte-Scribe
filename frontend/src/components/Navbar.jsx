@@ -102,7 +102,7 @@ const Navbar = () => {
           {showProfileMenu && (
             <div
               ref={profileMenuRef}
-              className="absolute right-[-20px] top-10 mt-2 w-48 bg-slate-900 text-slate-300 rounded-md shadow-lg ring-1 ring-green-600 ring-opacity-5"
+              className="absolute right-[-20px] z-100 top-10 mt-2 w-48 bg-slate-900 text-slate-300 rounded-md shadow-lg ring-1 ring-green-600 ring-opacity-5"
             >
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 <div className="px-4 py-2">

@@ -58,7 +58,7 @@ const CreatePost = () => {
       //img upload
       try{
         // eslint-disable-next-line no-unused-vars
-        const imgUpload=await axios.post(URL+"/api/upload",data)
+        const imgUpload=await axios.post(URL+"/api/upload",data, {withCredentials:true})
         // console.log(imgUpload.data)
       }
       catch(err){

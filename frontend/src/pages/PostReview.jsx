@@ -20,7 +20,7 @@ const PostReview = () => {
   useEffect(() => {
     const fetchPost = async () => {
       try {
-        const res = await axios.get(URL + `/api/posts/${postId}`);
+        const res = await axios.get(URL + `/api/posts/${postId}`, { withCredentials: true });
         setPost(res.data);
         setLoader(false);
       } catch (err) {
@@ -31,7 +31,7 @@ const PostReview = () => {
 
     const fetchSuggestions = async () => {
       try {
-        const res = await axios.get(URL + `/api/posts/review/${postId}/suggestions`);
+        const res = await axios.get(URL + `/api/posts/review/${postId}/suggestions`, { withCredentials: true });
         setSuggestion(res.data || ""); // Assuming it's a single suggestion, adjust if multiple
       } catch (err) {
         console.error(err);
