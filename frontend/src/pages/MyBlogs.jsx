@@ -54,7 +54,7 @@ const MyBlogs = () => {
       <Navbar />
       <div className="h-40"></div>
       <div className="flex flex-col justify-center items-center px-8 md:px-[200px] min-h-[80vh]">
-        <div className="bg-slate-800 p-2 fixed z-50 top-16 flex justify-between items-center mt-8 mb-8 w-[80vw] rounded-lg ">
+        <div className="bg-slate-800 p-2 fixed z-40 top-16 flex justify-between items-center mt-8 mb-8 w-[80vw] rounded-lg ">
           <div className="text-2xl text-slate-300 font-extrabold">Your Blogs:</div>
           <div className="flex justify-center space-x-4 py-4 overflow-y-auto">
             {["all", "In Review", "pending", "approved", "rejected"].map(

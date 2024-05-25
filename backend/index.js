@@ -17,7 +17,7 @@ dotenv.config();
 // Database connection
 const connectDB = async () => {
     try {
-        await mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true });
+        await mongoose.connect(process.env.MONGO_URL);
         console.log("Database connected successfully!");
     } catch (err) {
         console.error("Database connection error:", err);
@@ -30,13 +30,13 @@ app.use("/images", express.static(path.join(__dirname, "/images")));
 
 // CORS configuration
 const allowedOrigins = [
-    'http://localhost:5173',  
+    'http://localhost:5173',
     process.env.PRODUCTION_ORIGIN // Use production origin from environment variable
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-        if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+        if (!origin || allowedOrigins.indexOf(origin) !== -1) {
             callback(null, true);
         } else {
             callback(new Error('Not allowed by CORS'));
@@ -46,6 +46,13 @@ app.use(cors({
 }));
 
 app.use(cookieParser());
+
+// Debugging cookies
+app.use((req, res, next) => {
+    console.log('Cookies:', req.cookies); // Debugging cookies
+    next();
+});
+
 app.use("/api/auth", authRoute);
 app.use("/api/users", userRoute);
 app.use("/api/posts", postRoute);
@@ -66,8 +73,14 @@ app.post("/api/upload", upload.single("file"), (req, res) => {
     res.status(200).json("Image has been uploaded successfully!");
 });
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error(err.stack);
+    res.status(500).send('Something broke!');
+});
+
 // Start server
-const PORT = process.env.PORT || 8080; // Use PORT from environment variable or default to 8080
+const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
     connectDB();
     console.log(`App is running on port ${PORT}`);

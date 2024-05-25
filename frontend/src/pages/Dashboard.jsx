@@ -54,7 +54,7 @@ const Dashboard = () => {
       }
     };
     fetchData();
-  }, [user, navigate]);
+  }, [user, navigate, userData]);
 
   useEffect(() => {
     const filteredUsers = users.filter((user) =>
@@ -140,7 +140,7 @@ const Dashboard = () => {
             <FaBlog className="text-2xl mr-2" />
             <h2 className="text-2xl font-semibold">
               Blogs Published:{" "}
-              {posts?.filter((post) => post.status === "approved").length}
+              {posts?.filter((post) => (post.status === "approved" && post.approved)).length}
             </h2>
           </div>
         </div>

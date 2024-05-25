@@ -4,6 +4,7 @@ import {
   useRef,
   useEffect,
 } from "react";
+import { URL } from "../url";
 import { Link, useNavigate } from "react-router-dom";
 import { BsPersonCircle } from "react-icons/bs";
 import { UserContext } from "../context/UserContext";
@@ -15,15 +16,15 @@ const Navbar = () => {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [username, setUsername] = useState("");
   const profileMenuRef = useRef();
-  const url = "https://byte-scribe-backend.onrender.com";
   const userData = JSON.parse(localStorage.getItem("user"));
 
   // Fetch user info on component mount
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get(url + "/api/users/" + userData._id, { timeout: 5000 }, {
+        const res = await axios.get(`${URL}/api/users/${userData?._id}`, {
           withCredentials: true,
+          timeout: 5000,
         });
         setUsername(res.data.username);
       } catch (err) {
@@ -36,7 +37,7 @@ const Navbar = () => {
     } else {
       navigate("/login");
     }
-  }, [userData, navigate]);
+  }, [userData, navigate, userData?._id]);
 
   // Close profile dropdown when clicked outside
   useEffect(() => {
@@ -66,7 +67,7 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.get(url + "/api/auth/logout", {
+      await axios.get(URL + "/api/auth/logout", {
         withCredentials: true,
       });
       setUser(null);
@@ -104,7 +105,7 @@ const Navbar = () => {
           {showProfileMenu && (
             <div
               ref={profileMenuRef}
-              className="absolute right-[-20px] z-100 top-10 mt-2 w-48 bg-slate-900 text-slate-300 rounded-md shadow-lg ring-1 ring-green-600 ring-opacity-5"
+              className="absolute right-[-20px] z-50 top-10 mt-2 w-48 bg-slate-900 text-slate-300 rounded-md shadow-lg ring-1 ring-green-600 ring-opacity-5"
             >
               <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
                 <div className="px-4 py-2">

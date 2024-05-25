@@ -23,6 +23,7 @@ const Home = () => {
         const res = await axios.get(`${URL}/api/posts` ,{
           withCredentials: true,
         });
+        console.log(res.data);
         setPosts(res.data.posts);
         // Extract categories from posts
         const allCategories = new Set();
@@ -58,7 +59,7 @@ const Home = () => {
       <Navbar />
       <div className="flex flex-1 flex-col bg-slate-800 px-8 md:px-[200px] min-h-screen py-8">
         <div className="h-36"></div>
-        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 w-[90vw] max-w-4xl flex items-center mt-4 justify-center space-x-4 mb-4">
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-40 max-w-[60vw] overflow-y-auto flex items-center mt-4 justify-center space-x-4 mb-4">
           {categories.map(category => (
             <button
               key={category}
@@ -76,7 +77,7 @@ const Home = () => {
             <Loader />
           </div>
         ) : filteredPosts.length > 0 ? (
-          filteredPosts.filter((post) => post.status === "approved").map((post) => (
+          filteredPosts.filter((post) => post.status === "approved" || post.approved).map((post) => (
             <Link to={user ? `/posts/post/${post._id}` : "/login"} key={post._id}>
               <HomePosts post={post} />
             </Link>

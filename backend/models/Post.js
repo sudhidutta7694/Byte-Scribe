@@ -35,7 +35,7 @@ const PostSchema=new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['reviewing', 'pending', 'approved', 'rejected'],
+        enum: ['in review', 'pending', 'approved', 'rejected'],
         default: 'pending',
         required: true
     },
